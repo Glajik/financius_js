@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ru">
+	<head>
+		<meta charset = "windows-1251">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+		<!-- jQuery library -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+		<!-- Latest compiled JavaScript -->
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	</head>
+
+<body>
+<div class="container">
+	<div class = "row" id = "title">
+			<table class="table">
+				<tr>
+					<td>
+						<h1>Financius report</h1>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<input id = "MyFile" type="file">
+					</td>
+				</tr>
+				<tr>
+					<td></td>
+				</tr>
+			</table>
+	</div>
+	<div class = "row">
+		<div class = "col-lg-2">
+			<table class = "table">
+				<thead>
+					<tr><th>Menu:</th></tr>
+				</thead>	
+				<tbody>
+					<tr>
+						<td><a href="#" id="currencies">Currencies</a></td>
+						<td id="currencies_count"></td>
+					</tr>
+					<tr>
+						<td><a href="#" id="categories">Categories</a></td>
+						<td id="categories_count"></td>
+					</tr>
+					<tr>
+						<td><a href="#" id="tags">Tags</a></td>
+						<td id="tags_count"></td>
+					</tr>
+					<tr>
+						<td><a href="#" id="accounts">Accounts</a></td>
+						<td id="accounts_count"></td>
+					</tr>
+					<tr>
+						<td><a href="#" id="transactions">Transactions</a></td>
+						<td id="transactions_count"></td>
+					</tr>		
+				</tbody>
+			</table>
+		</div>
+		<div class = "col-lg-3">
+			<table class = "table">
+				<thead>
+					<tr><th>View:</th></tr>
+				</thead>	
+				<tbody id = "viewone">
+				</tbody>
+			</table>
+		</div>
+		<div class = "col-lg-7">
+			<table class = "table">
+				<thead>
+					<tr><th>Detail view:</th></tr>
+				</thead>	
+				<tbody id = "viewmore">
+				</tbody>
+			</table>
+		</div>
+	</div>
+	<div class = "row">
+		<h4>Log:</h4>
+		<p id="log1"></p>
+	</div>
+</div>
+
+
+<script>
+
+// GLOBAL variable for financius object
+var financius;
+	
+
+
+function onFilesSelect(FileList) {
+	// получаем объект FileList
+	var files = FileList.target.files
+	var i = 0;
+	var data, fr, file;
+
+	// Чистим вывод
+	document.getElementById("log1").innerHTML = "";
+
+  // Перебираем все файлы в FileList'е
+ for(var i = 0; i < files.length; i++) {
+  	 file = files[i];
+	 // выводим имя файла
+	 //document.getElementById("log1").innerHTML += 
+		"<br>" + file.name + "<br>" + "--------------" + "<br>";
+	 // узнаём информацию о нём
+	 data = [file.name, file.type, file.size];
+	 // объект для чтения файла
+	 fr = new FileReader();
+	 // считываем его в строку base64
+	 
+	 fr.readAsText(file);
+	 // как только файл загружен
+	 fr.onload = (function () {return function(e){
+										ParseJson(e.target.result);
+										}
+								}) (file, data);  
+	
+	}
+}
+
+function ParseJson (txt) {
+	financius = JSON.parse(txt);
+	// version
+	// timestamp
+
+	//document.getElementById("title").innerHTML = "<h1>Financius report</h1>";	
+
+	document.getElementById("currencies_count").innerHTML = financius.currencies.length;
+	document.getElementById("categories_count").innerHTML = financius.categories.length;
+	document.getElementById("tags_count").innerHTML = financius.tags.length;
+	document.getElementById("accounts_count").innerHTML = financius.accounts.length;
+	document.getElementById("transactions_count").innerHTML = financius.transactions.length;
+
+/*
+	document.getElementById("currencies").onclick = onClickCurrencies; 
+	document.getElementById("categories").onclick = onClickCategories;
+	document.getElementById("tags").onclick = onClickTags;
+	document.getElementById("accounts").onclick = onClickAccounts;
+	document.getElementById("transactions").onclick = onClickTransactions;
+*/
+
+	document.getElementById("currencies").onclick = onClickMenu; 
+	document.getElementById("categories").onclick = onClickMenu;
+	document.getElementById("tags").onclick = onClickMenu;
+	document.getElementById("accounts").onclick = onClickMenu;
+	document.getElementById("transactions").onclick = onClickMenu;
+
+/*
+	var output = "";
+	var i;
+	var lenght = financius.transactions.length;
+	var x;
+	for (i = 0; i < lenght; i++) {
+		for (x in financius.transactions[i]) output += x +": " + financius.transactions[i][x] + "<br>";
+		output += "------------ <br>";
+		}
+	document.getElementById("log1").innerHTML = output;
+*/
+	
+}		
+
+function ViewMore(obj){
+	var output = "";
+	var x;
+	for (x in obj) output += x +": " + obj[x] + "<br>";
+	document.getElementById("viewmore").innerHTML = output;
+}
+
+function onClickCurrencies(){
+/*
+      "id": "8952f933-e7a6-449e-a6a9-d7d5848fd7e2",
+      "model_state": 1,
+      "sync_state": 1,
+      "code": "USD",
+      "symbol": "$",
+      "symbol_position": 2,
+      "decimal_separator": ".",
+      "group_separator": ",",
+      "decimal_count": 2
+*/
+
+	var length = financius.currencies.length;
+	var output = "";
+	var id = "curr_1";
+
+	var i;
+	for (i = 0; i < length; i++) {
+		id = "curr_" + i;
+		output += "<tr>";
+		output += "<td id = '" + id + "'>";
+		output += financius.currencies[i].code;
+		output += "</td>";
+		output += "</tr>";
+		//document.querySelector(id).addEventListener('click', ViewCurrenceMore(financius.currencies[i]), false);
+		}
+	document.getElementById("viewone").innerHTML = output;
+
+	ViewMore(financius.currencies[0]);
+
+}
+
+function onClickCategories(){
+/*
+      "id": "1a36fa04-e462-43fe-b1dc-2b055fa7b8a7",
+      "model_state": 1,
+      "sync_state": 1,
+      "title": "Подарки",
+      "color": -5552196,
+      "transaction_type": 1,
+      "sort_order": 0
+*/
+	var length = financius.categories.length;
+	var output = "";
+	var id = "cat_1";
+
+	var i;
+	for (i = 0; i < length; i++) {
+		id = "cat_" + i;
+		output += "<tr>";
+		output += "<td id = '" + id + "'>";
+		output += financius.categories[i].title;
+		output += "</td>";
+		output += "</tr>";
+		}
+	document.getElementById("viewone").innerHTML = output;
+
+	for (i = 0; i < length; i++) {
+		document.querySelector(id).addEventListener('click', ViewMore(financius.categories[i]), false);
+	}
+
+	ViewMore(financius.categories[0]);
+
+}	
+
+function onClickTags(){
+/*
+      "id": "ae78cb9a-a442-426a-af77-9057f8720731",
+      "model_state": 1,
+      "sync_state": 1,
+      "title": "Комиссия Банка"
+*/
+
+	var length = financius.tags.length;
+	var output = "";
+	var id = "tag_1";
+
+	var i;
+	for (i = 0; i < length; i++) {
+		id = "tag_" + i;
+		output += "<tr>";
+		output += "<td id = '" + id + "'>";
+		output += financius.tags[i].title;
+		output += "</td>";
+		output += "</tr>";
+		//document.querySelector(id).addEventListener('click', ViewCurrenceMore(financius.currencies[i]), false);
+		}
+	document.getElementById("viewone").innerHTML = output;
+
+	ViewMore(financius.tags[0]);
+}	
+
+
+function onClickAccounts(){
+/*
+      "id": "177f16ee-9e33-420d-802a-3ae3e29c8abb",
+      "model_state": 1,
+      "sync_state": 1,
+      "currency_code": "UAH",
+      "title": "Тоня Карточка",
+      "note": "",
+      "balance": 100764,
+      "include_in_totals": true
+*/
+
+	var length = financius.accounts.length;
+	var output = "";
+	var id = "acc_1";
+
+	var i;
+	for (i = 0; i < length; i++) {
+		id = "acc_" + i;
+		output += "<tr>";
+		output += "<td id = '" + id + "'>";
+		output += financius.accounts[i].title;
+		output += "</td>";
+		output += "</tr>";
+		//document.querySelector(id).addEventListener('click', ViewCurrenceMore(financius.currencies[i]), false);
+		}
+	document.getElementById("viewone").innerHTML = output;
+
+	ViewMore(financius.accounts[0]);
+}	
+
+function onClickTransactions(){
+/*
+      "id": "0981eaf3-cff3-44a8-8dd6-3ec9b86eff52",
+      "model_state": 2,
+      "sync_state": 1,
+      "account_from_id": "6beec5d9-87df-4109-86b3-33b6fabed9c1",
+      "account_to_id": null,
+      "category_id": "e80f5f04-f0e9-430f-b551-5724766783f7",
+      "tag_ids": [],
+      "date": 1479538322864,
+      "amount": 27800,
+      "exchange_rate": 1.0,
+      "note": "Account balance update",
+      "transaction_state": 2,
+      "transaction_type": 1,
+      "include_in_reports": false
+*/
+
+	var length = financius.transactions.length;
+	var output = "";
+	var id = "trans_1";
+
+	var i;
+	for (i = 0; i < length; i++) {
+		id = "trans_" + i;
+		output += "<tr>";
+		output += "<td id = '" + id + "'>";
+		output += financius.transactions[i].note;
+		output += "</td>";
+		output += "</tr>";
+		//document.querySelector(id).addEventListener('click', ViewCurrenceMore(financius.currencies[i]), false);
+		}
+	document.getElementById("viewone").innerHTML = output;
+
+	ViewMore(financius.transactions[0]);
+}	
+
+
+function onClickMenu(){
+/*
+      "id": "1a36fa04-e462-43fe-b1dc-2b055fa7b8a7",
+      "model_state": 1,
+      "sync_state": 1,
+      "title": "Подарки",
+      "color": -5552196,
+      "transaction_type": 1,
+      "sort_order": 0
+*/
+
+	var length = 0;
+	var pre_id = "err";
+	var output = "";
+	
+	switch (this.id) {	
+		case "currencies": 
+			length = financius.currencies.length;
+			pre_id = "curr_";
+			break;	
+	
+		case "categories":
+			length = financius.categories.length;
+			pre_id = "cat_";
+			break;	
+
+		case "tags":
+			length = financius.tags.length;
+			pre_id = "tag_";
+			break;	
+
+		case "accounts":
+			pre_id = "acc_";
+			length = financius.accounts.length;
+			break;	
+
+		case "transactions":
+			pre_id = "trans_";
+			length = financius.transactions.length;
+			break;	
+		}
+
+
+
+	var i;
+	for (i = 0; i < length; i++) {
+		output += "<tr>";
+		output += "<td>";
+					//	<a href = '#' id = 'transactions' onclick='onClickViewOne() {colsole.log(this.id); ViewMore(financius.transactions[0].note);}'>
+		//		output += "<a href = '#' id = '" + pre_id + i + "' onclick='onClickViewOne() {colsole.log(this.id); ViewMore(financius." + pre_id + "[" + i "]);}'>"
+		switch (this.id) {	
+			case "currencies":
+				output += "<a href = '#' id = '" + pre_id + i + "' onclick='console.log(this.id); ViewMore(financius.currencies[" + i + "]);'>"; 
+				output += financius.currencies[i].code;
+				output += "</a>";	
+				break;	
+	
+			case "categories":
+				output += "<a href = '#' id = '" + pre_id + i + "' onclick='console.log(this.id); ViewMore(financius.categories[" + i + "]);'>";
+				output += financius.categories[i].title;
+				output += "</a>";	
+				break;	
+
+			case "tags":
+				output += "<a href = '#' id = '" + pre_id + i + "' onclick='console.log(this.id); ViewMore(financius.tags[" + i + "]);'>";
+				output += financius.tags[i].title;
+				output += "</a>";	
+				break;	
+
+			case "accounts":
+				output += "<a href = '#' id = '" + pre_id + i + "' onclick='console.log(this.id); ViewMore(financius.accounts[" + i + "]);'>";
+				output += financius.accounts[i].title;
+				output += "</a>";	
+				break;	
+
+			case "transactions":
+				output += "<a href = '#' id = '" + pre_id + i + "' onclick='console.log(this.id); ViewMore(financius.transactions[" + i + "]);'>";
+				output += financius.transactions[i].note;
+				output += "</a>";	
+				break;	
+			}
+		output += "</td>";
+		output += "</tr>";
+		}
+	
+	document.getElementById("viewone").innerHTML = output;
+
+/*	for (i = 0; i < length; i++) {
+		document.querySelector(pre_id + i).addEventListener('click', ViewMore(), false);
+	}
+*/
+}	
+
+ 
+ 
+ // проверяем поддерживает ли браузер file API
+if(window.File && window.FileReader && window.FileList && window.Blob) {
+  // если да, то как только страница загрузится
+  onload = function () {
+    // вешаем обработчик события, срабатывающий при изменении input'а
+    document.querySelector('input').addEventListener('change', onFilesSelect, false);
+  }
+// если нет, то предупреждаем, что демо работать не будет
+} else {
+  alert('К сожалению ваш браузер не поддерживает file API');
+}
+</script>
+
+
+</body>
+</html> 
